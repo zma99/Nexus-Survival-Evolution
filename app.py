@@ -62,9 +62,18 @@ def ph(pw: str) -> str:
     return hashlib.sha256((pw + "::nexus-salt").encode()).hexdigest()
 
 
+def ensure_schema_migrations(conn):
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(players)").fetchall()}
+    if "char_name" not in cols:
+        conn.execute("ALTER TABLE players ADD COLUMN char_name TEXT NOT NULL DEFAULT 'survivor'")
+    if "sprite" not in cols:
+        conn.execute("ALTER TABLE players ADD COLUMN sprite TEXT NOT NULL DEFAULT 'scout'")
+
+
 def init_db():
     conn = get_conn()
     c = conn.cursor()
+    ensure_schema_migrations(conn)
     c.execute("""
     CREATE TABLE IF NOT EXISTS players (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

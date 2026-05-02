@@ -9,7 +9,7 @@ const authMsg = document.getElementById('authMsg');
 const usernameEl = document.getElementById('username');
 const passwordEl = document.getElementById('password');
 const charNameEl = document.getElementById('charName');
-const spriteEl = document.getElementById('sprite');
+let selectedSprite = 'scout';
 
 const TILE = 32;
 let me = null;
@@ -139,7 +139,7 @@ document.getElementById('registerBtn').addEventListener('click', () => {
     username,
     password,
     char_name: charNameEl.value.trim() || 'Survivor',
-    sprite: spriteEl.value,
+    sprite: selectedSprite,
   });
 });
 
@@ -173,3 +173,24 @@ chatInput.addEventListener('keydown', (e) => {
 });
 
 requestAnimationFrame(render);
+
+
+document.querySelectorAll('.sprite').forEach((el) => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.sprite').forEach((n) => n.classList.remove('active'));
+    el.classList.add('active');
+    selectedSprite = el.dataset.sprite;
+  });
+});
+
+canvas.addEventListener('click', (e) => {
+  if (!me) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const dx = mx < cx - 12 ? -1 : (mx > cx + 12 ? 1 : 0);
+  const dy = my < cy - 12 ? -1 : (my > cy + 12 ? 1 : 0);
+  if (dx || dy) socket.emit('move', { dx, dy });
+});
