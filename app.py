@@ -5,6 +5,10 @@ import random
 import sqlite3
 import hashlib
 from dataclasses import dataclass, asdict
+import math
+import random
+import sqlite3
+from dataclasses import dataclass
 from threading import Lock
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
@@ -15,10 +19,19 @@ SAVE_INTERVAL_SECONDS = 10
 WORLD_WIDTH = 192
 WORLD_HEIGHT = 192
 VIEW_RADIUS = 14
+SERVER_TICK_RATE = 5  # 5Hz para CPU limitada
+SAVE_INTERVAL_SECONDS = 15
+WORLD_WIDTH = 160
+WORLD_HEIGHT = 160
+VIEW_RADIUS = 18
+
+BIOMES = ["forest", "mountain", "water", "plain"]
+RESOURCE_TYPES = ["wood", "stone", "ore", "fiber"]
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nexus_dev_secret"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
 lock = Lock()
 
 
