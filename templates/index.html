@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nexus Survival: Evolution</title>
+  <style>
+    body { margin:0; background:#101317; color:#e7ecf1; font-family:Arial,sans-serif; }
+    #hud { position: fixed; top: 8px; left: 8px; background: rgba(0,0,0,.45); padding: 8px; border-radius: 8px; font-size: 13px; }
+    #chat { position: fixed; bottom: 8px; left: 8px; width: 360px; }
+    #chat input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #36414d; background: #1b2229; color: #e7ecf1; }
+    canvas { display:block; margin:0 auto; background:#223; }
+  </style>
+</head>
+<body>
+  <div id="hud"></div>
+  <div id="chat"><input id="chatInput" placeholder="Enter para hablar..." /></div>
+  <canvas id="game" width="960" height="540"></canvas>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/static/game.js"></script>
+</body>
+</html>
