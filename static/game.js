@@ -94,6 +94,10 @@ function render() {
 }
 
 socket.on('auth', (d) => {
+  if (d.ok && d.mode === 'register') {
+    authMsg.textContent = 'Cuenta creada ✔ Ahora pulsa Iniciar sesión.';
+    return;
+  }
   authMsg.textContent = d.ok ? 'OK ✔' : (d.error || 'Error');
   if (d.ok && d.mode === 'login') auth.style.display = 'none';
 });
@@ -125,9 +129,15 @@ document.getElementById('loginBtn').addEventListener('click', () => {
 });
 
 document.getElementById('registerBtn').addEventListener('click', () => {
+  const username = usernameEl.value.trim();
+  const password = passwordEl.value;
+  if (username.length < 3 || password.length < 4) {
+    authMsg.textContent = 'Usuario mínimo 3 chars y contraseña mínimo 4.';
+    return;
+  }
   socket.emit('register', {
-    username: usernameEl.value.trim(),
-    password: passwordEl.value,
+    username,
+    password,
     char_name: charNameEl.value.trim() || 'Survivor',
     sprite: spriteEl.value,
   });
