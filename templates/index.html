@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nexus Survival Evolution</title>
+  <style>
+    body{margin:0;background:#0b0f14;color:#eaf0f6;font-family:monospace;overflow:hidden}
+    #game{display:block}
+    .panel{position:fixed;background:#000a;border:1px solid #4b5b69;padding:8px}
+    #hud{left:8px;top:8px;min-width:300px}
+    #help{right:8px;top:8px;min-width:280px}
+    #chat{left:8px;bottom:8px;width:340px}
+    #chat input{width:100%;padding:8px;background:#121a23;color:#fff;border:1px solid #31404d}
+    #auth{position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center}
+    #auth .card{width:340px;background:#121822;border:1px solid #415162;padding:14px}
+    #auth input,#auth select,#auth button{width:100%;margin:6px 0;padding:9px;background:#0e141d;color:#fff;border:1px solid #2f3b48}
+  </style>
+</head>
+<body>
+  <canvas id="game" width="1280" height="720"></canvas>
+  <div id="hud" class="panel">Cargando...</div>
+  <div id="help" class="panel"></div>
+  <div id="chat" class="panel"><input id="chatInput" placeholder="Enter para chat" /></div>
+
+  <div id="auth">
+    <div class="card">
+      <h3>Nexus Survival</h3>
+      <input id="username" placeholder="Usuario" />
+      <input id="password" type="password" placeholder="Contraseña" />
+      <input id="charName" placeholder="Nombre personaje" />
+      <select id="sprite">
+        <option value="scout">Scout</option>
+        <option value="miner">Miner</option>
+        <option value="ranger">Ranger</option>
+      </select>
+      <button id="loginBtn">Iniciar sesión</button>
+      <button id="registerBtn">Crear personaje</button>
+      <div id="authMsg">Si no tienes cuenta, pulsa <b>Crear personaje</b>.</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/static/game.js?v=2"></script>
+</body>
+</html>
