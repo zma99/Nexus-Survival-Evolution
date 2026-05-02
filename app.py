@@ -48,6 +48,7 @@ sessions_by_sid = {}
 sessions_by_player_id = {}
 last_save_ts = time.time()
 world_state = {"day_time": 420.0, "day_index": 0, "season": "spring", "weather": "clear", "weather_intensity": 0.0}
+creatures = []
 
 
 def get_conn():
@@ -63,6 +64,9 @@ def ph(pw: str) -> str:
 
 
 def ensure_schema_migrations(conn):
+    table_exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='players'").fetchone()
+    if not table_exists:
+        return
     cols = {r[1] for r in conn.execute("PRAGMA table_info(players)").fetchall()}
     if "char_name" not in cols:
         conn.execute("ALTER TABLE players ADD COLUMN char_name TEXT NOT NULL DEFAULT 'survivor'")
@@ -245,11 +249,17 @@ def apply_decay(sp, dt):
 
 
 def gather(sp):
-    t = tile_kind(sp.x, sp.y)
-    if t == "forest": sp.wood += 1; sp.fiber += 1
-    elif t == "mountain": sp.stone += 1; sp.ore += 1
-    elif t == "plain": sp.fiber += 1
+    around = [(sp.x, sp.y), (sp.x+1, sp.y), (sp.x-1, sp.y), (sp.x, sp.y+1), (sp.x, sp.y-1)]
+    got = False
+    for tx, ty in around:
+        t = tile_kind(tx, ty)
+        if t == "forest": sp.wood += 1; sp.fiber += 1; got = True; break
+        if t == "mountain": sp.stone += 1; sp.ore += 1; got = True; break
+        if t == "plain": sp.fiber += 1; got = True; break
+    if not got:
+        return False
     sp.energy = max(0, sp.energy - 0.7); sp.dirty = True
+    return True
 
 
 def drink(sp):
@@ -258,6 +268,31 @@ def drink(sp):
             sp.thirst = min(100, sp.thirst + 30); sp.temperature = min(37, sp.temperature+0.2); sp.dirty = True; return True
     return False
 
+
+
+
+def spawn_creatures():
+    if creatures:
+        return
+    kinds = ["boar", "wolf", "deer"]
+    for i in range(18):
+        for _ in range(300):
+            x = random.randint(2, WORLD_WIDTH - 3)
+            y = random.randint(2, WORLD_HEIGHT - 3)
+            if not is_blocked(x, y):
+                creatures.append({"id": i + 1, "k": random.choice(kinds), "x": x, "y": y, "dir": random.choice([(1,0),(-1,0),(0,1),(0,-1)])})
+                break
+
+
+def tick_creatures():
+    for c in creatures:
+        if random.random() < 0.35:
+            c["dir"] = random.choice([(1,0),(-1,0),(0,1),(0,-1),(0,0)])
+        nx, ny = c["x"] + c["dir"][0], c["y"] + c["dir"][1]
+        if 1 <= nx < WORLD_WIDTH-1 and 1 <= ny < WORLD_HEIGHT-1 and not is_blocked(nx, ny):
+            occupied = any(p.x == nx and p.y == ny for p in sessions_by_player_id.values())
+            if not occupied:
+                c["x"], c["y"] = nx, ny
 
 @socketio.on("register")
 def on_register(data):
@@ -280,7 +315,7 @@ def on_login(data):
         return emit("auth", {"ok": False, "error": "Credenciales inválidas."})
     sp = to_session(row, request.sid)
     emit("auth", {"ok": True, "mode": "login"})
-    emit("bootstrap", {"self": asdict(sp), "world": {**world_state, "w": WORLD_WIDTH, "h": WORLD_HEIGHT}, "players": nearby(sp)})
+    emit("bootstrap", {"self": asdict(sp), "world": {**world_state, "w": WORLD_WIDTH, "h": WORLD_HEIGHT}, "players": nearby(sp), "creatures": creatures})
 
 
 @socketio.on("move")
@@ -300,7 +335,8 @@ def on_action(data):
     sp = sessions_by_sid.get(request.sid)
     if not sp: return
     a = data.get("kind")
-    if a == "gather": gather(sp)
+    if a == "gather":
+        if not gather(sp): emit("hint", {"msg": "No hay recursos cerca para recolectar."})
     elif a == "drink":
         if not drink(sp): emit("hint", {"msg": "Necesitas estar junto al agua para beber."})
     elif a == "rest": sp.energy = min(100, sp.energy + 18); sp.temperature = min(37, sp.temperature + 0.1)
@@ -354,11 +390,12 @@ def game_loop():
             world_state["day_time"] = (world_state["day_time"] + dt * 1.2) % 1440
             if random.random() < 0.003:
                 world_state["weather"] = random.choice(["clear", "fog", "rain", "storm"]); world_state["weather_intensity"] = round(random.random(), 2)
+            tick_creatures()
             changed = []
             for sp in list(sessions_by_player_id.values()):
                 apply_decay(sp, dt)
                 changed.append({"id": sp.player_id, "x": sp.x, "y": sp.y, "life": round(sp.life,1), "hunger": round(sp.hunger,1), "thirst": round(sp.thirst,1), "temperature": round(sp.temperature,1), "energy": round(sp.energy,1), "health": round(sp.health,1), "wood": sp.wood, "stone": sp.stone, "ore": sp.ore, "fiber": sp.fiber, "n": sp.char_name, "sprite": sp.sprite, "u": sp.username})
-            if changed: socketio.emit("delta", {"players": changed, "world": world_state})
+            if changed: socketio.emit("delta", {"players": changed, "world": world_state, "creatures": creatures})
             if now - last_save_ts > SAVE_INTERVAL_SECONDS:
                 conn = get_conn(); ts = int(now)
                 for k, v in world_state.items(): conn.execute("UPDATE world_state SET value=?,updated_at=? WHERE key=?", (str(v), ts, k))
@@ -370,5 +407,5 @@ def game_loop():
 
 
 if __name__ == "__main__":
-    init_db(); load_world_state(); socketio.start_background_task(game_loop)
+    init_db(); load_world_state(); spawn_creatures(); socketio.start_background_task(game_loop)
     socketio.run(app, host="0.0.0.0", port=5000)
