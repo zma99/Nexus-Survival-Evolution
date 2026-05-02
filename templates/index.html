@@ -5,35 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nexus Survival: Evolution</title>
   <style>
-    body{margin:0;background:#0f1116;color:#e6edf3;font-family:monospace;overflow:hidden}
-    #ui{position:fixed;inset:0;pointer-events:none}
-    #hud,#tips,#chat{pointer-events:auto}
-    #hud{position:fixed;top:8px;left:8px;background:#0009;padding:10px;border:1px solid #4f5b66}
-    #tips{position:fixed;top:8px;right:8px;background:#0009;padding:10px;border:1px solid #4f5b66;width:300px}
-    #chat{position:fixed;bottom:8px;left:8px;width:360px}
-    #chat input{width:100%;padding:8px;background:#111821;color:#e6edf3;border:1px solid #2f3a45}
-    #auth{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000c}
-    #auth .card{background:#131820;padding:16px;border:1px solid #3f4a56;width:320px}
-    #auth input,#auth select,#auth button{width:100%;margin:6px 0;padding:8px;background:#0e141b;color:#fff;border:1px solid #2f3a45}
+    body { margin:0; background:#101317; color:#e7ecf1; font-family:Arial,sans-serif; }
+    #hud { position: fixed; top: 8px; left: 8px; background: rgba(0,0,0,.45); padding: 8px; border-radius: 8px; font-size: 13px; }
+    #chat { position: fixed; bottom: 8px; left: 8px; width: 360px; }
+    #chat input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #36414d; background: #1b2229; color: #e7ecf1; }
+    canvas { display:block; margin:0 auto; background:#223; }
   </style>
 </head>
 <body>
-  <canvas id="game" width="1280" height="720"></canvas>
-  <div id="ui">
-    <div id="hud"></div>
-    <div id="tips"></div>
-    <div id="chat"><input id="chatInput" placeholder="Enter: chat" /></div>
-  </div>
-  <div id="auth"><div class="card">
-    <h3>Nexus Survival</h3>
-    <input id="u" placeholder="Usuario" />
-    <input id="p" type="password" placeholder="Contraseña" />
-    <input id="n" placeholder="Nombre del personaje" />
-    <select id="s"><option value="scout">Scout</option><option value="miner">Miner</option><option value="ranger">Ranger</option></select>
-    <button id="loginBtn">Iniciar sesión</button>
-    <button id="regBtn">Crear personaje</button>
-    <div id="authMsg"></div>
-  </div></div>
+  <div id="hud"></div>
+  <div id="chat"><input id="chatInput" placeholder="Enter para hablar..." /></div>
+  <canvas id="game" width="960" height="540"></canvas>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/static/game.js"></script>
 </body>

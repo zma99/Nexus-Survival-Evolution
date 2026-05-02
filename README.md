@@ -1,6 +1,11 @@
 # Nexus Survival: Evolution
 
-Versión mejorada estilo "Minecraft recortado" (pixel-art 2D top-down), con login/registro, personaje, colisiones naturales, crafting, recolección y trade local en tiempo real.
+Implementación base de un juego de supervivencia multijugador en navegador, optimizado para hardware limitado (PC Stick con Atom/Celeron), usando Flask + Socket.IO + SQLite.
+
+## Requisitos
+
+- Python 3.10+
+- pip
 
 ## Instalación
 
@@ -10,37 +15,34 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Ejecutar en LAN
+## Ejecución
 
 ```bash
 python app.py
 ```
 
-Abrir en navegador:
-- `http://127.0.0.1:5000`
-- `http://192.168.1.205:5000`
+Servidor disponible en:
 
-## Controles
+- Local: `http://127.0.0.1:5000`
+- LAN: `http://192.168.1.205:5000`
 
-- Movimiento: `WASD` o flechas.
-- `E`: recolectar recursos del bioma actual.
-- `G`: beber agua (solo adyacente a agua).
-- `R`: descansar.
-- `F`: crear fogata (3 madera + 2 piedra).
-- `T`: crear herramienta (2 madera + 1 piedra).
-- `H`: trade rápido (1 madera) con jugador adyacente.
-- `Enter`: enviar chat bubble.
+## Estructura
 
-## Reglas naturales implementadas
+- `app.py`: servidor Flask-SocketIO, loop de juego, persistencia SQLite.
+- `templates/index.html`: entrada del cliente.
+- `static/game.js`: renderizado canvas, HUD, input, chat bubble y sincronización.
+- `nexus.db`: base de datos SQLite autogenerada.
 
-- Bordes del mapa son barreras (wall).
-- Agua es bloqueante (no se puede atravesar).
-- Montaña es bloqueante (simula paredes).
-- Si intentas pasar, el servidor rechaza movimiento y envía mensaje.
+## Esquema de datos (SQLite)
 
-## Persistencia SQLite
+- `players`: credenciales, stats de supervivencia, posición y timestamps de sesión.
+- `inventory`: inventario y equipamiento por jugador.
+- `world_entities`: objetos del mundo, drops y construcciones persistentes.
+- `world_state`: ciclo día/noche, estación y clima global.
 
-- `players`: credenciales, personaje, posición, stats vitales.
-- `inventory`: inventario persistente por jugador.
-- `world_entities`: espacio para construcciones/drops.
-- `world_state`: estado global (clima, tiempo de día).
+## Optimización aplicada
+
+- Tick rate bajo: `5 Hz` para carga estable en CPU limitada.
+- Broadcast de `delta` (solo cambios de estado), no snapshot completo en cada frame.
+- Guardado periódico cada 15s + guardado al desconectar.
+- SQLite en modo `WAL` y `synchronous=NORMAL`.
