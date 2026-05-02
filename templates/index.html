@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nexus Survival Evolution</title>
+  <style>
+    body{margin:0;background:radial-gradient(circle at top,#1a2430,#0b0f14 50%);color:#eaf0f6;font-family:monospace;overflow:hidden}
+    #game{display:block}
+    .panel{position:fixed;background:#000a;border:1px solid #4b5b69;padding:8px;border-radius:6px}
+    #hud{left:8px;top:8px;min-width:300px} #help{right:8px;top:8px;min-width:280px}
+    #chat{left:8px;bottom:8px;width:340px} #chat input{width:100%;padding:8px;background:#121a23;color:#fff;border:1px solid #31404d}
+    #auth{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center}
+    #auth .card{width:420px;background:linear-gradient(180deg,#1a2430,#121822);border:1px solid #54687b;padding:16px;border-radius:12px;box-shadow:0 8px 30px #0008}
+    #auth input,#auth button{width:100%;margin:6px 0;padding:10px;background:#0e141d;color:#fff;border:1px solid #2f3b48;border-radius:8px}
+    #auth button{cursor:pointer;transition:.15s transform,.15s background} #auth button:hover{background:#1b2734;transform:translateY(-1px)}
+    #spritePicker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+    .sprite{border:1px solid #405061;padding:8px;border-radius:8px;cursor:pointer;text-align:center;background:#10161f}
+    .sprite.active{border-color:#7ec9ff;background:#1a2a3d}
+  </style>
+</head>
+<body>
+  <canvas id="game" width="1280" height="720"></canvas>
+  <div id="hud" class="panel">Cargando...</div>
+  <div id="help" class="panel"></div>
+  <div id="chat" class="panel"><input id="chatInput" placeholder="Enter para chat" /></div>
+
+  <div id="auth"><div class="card">
+    <h2 style="margin:0 0 8px">Nexus Survival</h2>
+    <input id="username" placeholder="Usuario" />
+    <input id="password" type="password" placeholder="Contraseña" />
+    <input id="charName" placeholder="Nombre personaje" />
+    <div>Elige clase:</div>
+    <div id="spritePicker">
+      <div class="sprite active" data-sprite="scout">🧭 Scout</div>
+      <div class="sprite" data-sprite="miner">⛏ Miner</div>
+      <div class="sprite" data-sprite="ranger">🏹 Ranger</div>
+    </div>
+    <button id="loginBtn">Iniciar sesión</button>
+    <button id="registerBtn">Crear personaje</button>
+    <div id="authMsg">Si no tienes cuenta, pulsa <b>Crear personaje</b>.</div>
+  </div></div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/static/game.js?v=3"></script>
+</body>
+</html>
